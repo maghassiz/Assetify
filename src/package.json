@@ -1,0 +1,19 @@
+{
+  "name": "framer-asset-manager",
+  "version": "1.0.0",
+  "description": "Asset Manager plugin for Framer – view, filter and edit alt text for all canvas & CMS images",
+  "scripts": {
+    "dev": "framer-plugin dev",
+    "build": "framer-plugin build"
+  },
+  "dependencies": {
+    "framer-plugin": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}

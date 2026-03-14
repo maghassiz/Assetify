@@ -2,23 +2,23 @@ import type { AssetEntry } from "../types"
 import { VideoThumb } from "./VideoThumb"
 
 interface DetailPanelProps {
-  selected:      AssetEntry
-  editingAlt:    string
-  saving:        boolean
-  saveSuccess:   boolean
-  addingKey:     string | null
-  addedKey:      string | null
-  addMode:       "set" | "add" | null
-  hasSelection:  boolean
-  navIndex:      number
+  selected: AssetEntry
+  editingAlt: string
+  saving: boolean
+  saveSuccess: boolean
+  addingKey: string | null
+  addedKey: string | null
+  addMode: "set" | "add" | null
+  hasSelection: boolean
+  navIndex: number
   nodePageNames: string[]
-  onClose:       () => void
-  onAltChange:   (v: string) => void
-  onSaveAlt:     () => void
-  onAdd:         () => void
-  onStepNav:     (delta: 1 | -1) => void
-  onNavToIndex:  (i: number) => void
-  onNavToCurrent:() => void
+  onClose: () => void
+  onAltChange: (v: string) => void
+  onSaveAlt: () => void
+  onAdd: () => void
+  onStepNav: (delta: 1 | -1) => void
+  onNavToIndex: (i: number) => void
+  onNavToCurrent: () => void
 }
 
 export function DetailPanel({
@@ -28,11 +28,11 @@ export function DetailPanel({
   onClose, onAltChange, onSaveAlt, onAdd,
   onStepNav, onNavToIndex, onNavToCurrent,
 }: DetailPanelProps) {
-  const isVideo    = selected.assetType === "video"
-  const isCanvas   = selected.source === "canvas"
-  const hasNodes   = selected.nodeIds.length > 0
-  const isAdding   = addingKey === selected.key
-  const justAdded  = addedKey  === selected.key
+  const isVideo = selected.assetType === "video"
+  const isCanvas = selected.source === "canvas"
+  const hasNodes = selected.nodeIds.length > 0
+  const isAdding = addingKey === selected.key
+  const justAdded = addedKey === selected.key
 
   return (
     <div className="overlay" onClick={onClose}>
@@ -44,10 +44,10 @@ export function DetailPanel({
             {selected.name && selected.name !== "Untitled"
               ? selected.name
               : selected.url
-                  .split("/").pop()?.split("?")[0]   // filename from URL
-                  ?.replace(/[-_]/g, " ")              // dashes → spaces
-                  ?.replace(/\.\w+$/, "")              // strip extension
-                || "Untitled"}
+                .split("/").pop()?.split("?")[0]   // filename from URL
+                ?.replace(/[-_]/g, " ")              // dashes → spaces
+                ?.replace(/\.\w+$/, "")              // strip extension
+              || "Untitled"}
           </span>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
@@ -91,8 +91,8 @@ export function DetailPanel({
               <div className="meta-label">PAGE</div>
               <div className="meta-value meta-page">
                 ⊞ {selected.pageName && selected.pageName !== "Unknown page"
-                    ? selected.pageName
-                    : "Canvas"}
+                  ? selected.pageName
+                  : "Canvas"}
               </div>
             </div>
           )}
@@ -161,8 +161,8 @@ export function DetailPanel({
                     {nodePageNames[navIndex] && nodePageNames[navIndex] !== "…"
                       ? `⊞ ${nodePageNames[navIndex]}`
                       : nodePageNames[navIndex] === "…"
-                      ? "…"
-                      : "Canvas"}
+                        ? "…"
+                        : "Canvas"}
                   </span>
                   <span className="nav-go-arrow">↗ Go</span>
                 </button>
@@ -212,8 +212,8 @@ export function DetailPanel({
             <button
               className={[
                 "btn-add",
-                isVideo       ? "video-mode" : "",
-                hasSelection  ? "set-mode"   : "",
+                isVideo ? "video-mode" : "",
+                hasSelection ? "set-mode" : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -223,17 +223,17 @@ export function DetailPanel({
                 isVideo
                   ? "Go to video on canvas"
                   : hasSelection
-                  ? "Set on selected frame"
-                  : "Add to canvas"
+                    ? "Set on selected frame"
+                    : "Add to canvas"
               }
             >
               {isAdding
                 ? "…"
                 : isVideo
-                ? "↗ Go to"
-                : hasSelection
-                ? "↙ Set on frame"
-                : "+ Add to canvas"}
+                  ? "↗ Go to"
+                  : hasSelection
+                    ? "↙ Set on frame"
+                    : "+ Add to canvas"}
             </button>
           </div>
         </div>

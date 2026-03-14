@@ -10,6 +10,47 @@
   padding: 0;
 }
 
+/* ─── Framer Native Color Tokens ─────────────────────────────────────────────
+   These are provided automatically by Framer at runtime.
+   They adapt to light/dark mode without any extra work on your side.
+   Use these instead of hardcoded values wherever possible.
+   Reference: https://www.framer.com/developers/interface#color-tokens
+── */
+
+/*
+  BACKGROUNDS
+  ─────────────────────────────────────────────────────
+  --framer-color-bg              Main app background
+  --framer-color-bg-secondary    Panels, cards, header surfaces
+  --framer-color-bg-tertiary     Inputs, elevated surfaces, hover fills
+
+  TEXT
+  ─────────────────────────────────────────────────────
+  --framer-color-text            Primary text (high contrast)
+  --framer-color-text-secondary  Secondary / body text
+  --framer-color-text-tertiary   Muted / placeholder text
+  --framer-color-text-reversed   Text on dark/tinted surfaces
+
+  DIVIDERS & BORDERS
+  ─────────────────────────────────────────────────────
+  --framer-color-divider         Subtle separator lines and borders
+
+  ACCENT / TINT  (Framer blue — the main interactive color)
+  ─────────────────────────────────────────────────────
+  --framer-color-tint            Primary blue accent (buttons, active states)
+  --framer-color-tint-dimmed     Lighter/muted tint (hover backgrounds, subtle fills)
+  --framer-color-tint-dark       Darker tint (hover on primary buttons)
+
+  USAGE EXAMPLES
+  ─────────────────────────────────────────────────────
+  background: var(--framer-color-bg);
+  color:      var(--framer-color-text);
+  border:     1px solid var(--framer-color-divider);
+  background: var(--framer-color-tint);          ← primary button
+  background: var(--framer-color-tint-dimmed);   ← subtle accent fill
+  color:      var(--framer-color-tint);          ← active label/icon
+*/
+
 /* ─── Light mode tokens — neutral (black / white / grey + indigo accent) ─────── */
 :root {
   /* Backgrounds */
@@ -244,9 +285,10 @@ body {
 .search-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 12px;
-  background: var(--bg2);
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--framer-color-bg);
+  border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -256,22 +298,22 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
-  background: var(--bg3);
-  border: 1.5px solid var(--border);
+  /*background: var(--bg3);*/
+  /*border: 1.5px solid var(--border);*/
   border-radius: 8px;
-  padding: 7px 10px;
+  /*padding: 7px 10px;*/
   transition: border-color .15s;
   min-width: 0;
 }
 
 .search-wrap:focus-within {
   border-color: var(--accent-l);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+  /*box-shadow: 0 0 0 3px var(--accent-bg);*/
 }
 
 .search-icon {
   color: var(--dim);
-  font-size: 17px;
+  font-size: 32px;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -282,7 +324,7 @@ body {
   border: none;
   outline: none;
   color: var(--text);
-  font-size: 13px;
+  font-size: 14px;
   font-family: inherit;
   min-width: 0;
   overflow: hidden;
@@ -319,7 +361,7 @@ body {
   color: var(--muted);
   cursor: pointer;
   padding: 5px 9px;
-  font-size: 17px;
+  font-size: 20px;
   line-height: 1;
   flex-shrink: 0;
   transition: all .12s;
@@ -388,148 +430,154 @@ body {
 }
 
 .layout-icon-btn.active {
-  background: var(--accent-bg);
-  color: var(--accent);
+  background: var(--framer-color-tint);
+  color: var(--framer-color-text-reversed);
 }
 
-/* ─── Filter rows ─────────────────────────────────────────────────────────────── */
-/* Row label (Resource / Storage) + filter tab buttons                             */
-.filter-section {
+/* ─── Filter bar — single row ─────────────────────────────────────────────────── */
+.filter-bar {
+  background: var(--framer-color-bg);
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px 12px 0;
+  align-items: center;
+  gap: 0;
+  padding: 8px 0;
   flex-shrink: 0;
 }
 
-.filter-section:last-of-type {
-  padding-bottom: 14px;
-}
-
-.filter-row-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--dim);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  padding-left: 1px;
-}
-
-/* Scroll container with fade indicator */
-.filter-row-scroll {
+/* ── Scroll wrapper: takes leftover space, clips overflow ── */
+.filter-source-scroll-wrap {
   position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.filter-row-buttons {
+/* ── Scrollable tabs ── */
+.filter-source-tabs {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 8px;
+  padding: 2px 12px;
 }
 
-.filter-row-buttons::-webkit-scrollbar {
+.filter-source-tabs::-webkit-scrollbar {
   display: none;
 }
 
-/* Fade gradient — visible when content overflows right */
-.filter-row-scroll::after {
-  content: "";
+/* ── Fade overlay — gradient on right edge of scroll area ── */
+.filter-source-fade {
   position: absolute;
   top: 0;
   right: 0;
-  width: 32px;
+  width: 40px;
   height: 100%;
-  background: linear-gradient(to right, transparent, var(--bg));
+  background: linear-gradient(to right, transparent, var(--framer-color-bg));
   pointer-events: none;
-  opacity: 1;
-  transition: opacity .2s;
 }
 
-.filter-row-scroll.at-end::after {
-  opacity: 0;
-}
-
-.filter-tab {
-  display: flex;
+.filter-source-tab {
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   padding: 5px 10px;
   border-radius: 6px;
-  border: 1.5px solid var(--border);
-  background: var(--bg2);
+  border: none;
+  background: transparent;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  letter-spacing: .04em;
   white-space: nowrap;
-  flex-shrink: 0;
-  transition: all .12s;
+  transition: color .12s, background .12s;
 }
 
-.filter-tab:hover {
-  background: var(--bg3);
-  color: var(--text2);
-  border-color: var(--border2);
+.filter-source-tab:hover {
+  color: var(--text);
+  background: var(--framer-color-bg-secondary);
 }
 
-.filter-tab.active {
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
-  color: var(--accent);
+.filter-source-tab.active {
+  color: var(--framer-color-text-reversed);
   font-weight: 700;
+  background: var(--framer-color-tint);
 }
 
-.filter-count {
+.filter-source-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0 5px;
-  font-size: 10px;
-  color: var(--muted);
+  border-radius: 5px;
+  padding: 0 6px;
+  min-width: 22px;
+  height: 18px;
+  font-family: inherit;
+}
+
+.filter-source-tab.active .filter-source-count {
+  color: rgba(0, 0, 0);
+  background: var(--framer-color-text-reversed);
+  border-color: transparent;
+}
+
+/* ── Storage dropdown — fixed width, never scrolls ── */
+.filter-storage-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0 12px 0 10px;
+  border-left: 1px solid var(--framer-color-divider);
+}
+
+.filter-storage-label {
+  font-size: 13px;
   font-weight: 500;
-  min-width: 18px;
-  text-align: center;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
-.filter-tab.active .filter-count {
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
-  color: var(--accent);
+.filter-storage-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
-/* Storage row */
-.filter-tab-sm {
-  font-size: 10px;
-  padding: 4px 8px;
+.filter-storage-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0 16px 0 0;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.storage-active-framer.active {
-  border-color: var(--green-border);
-  background: var(--green-bg);
-  color: var(--green);
+.filter-storage-select option {
+  background: var(--bg2);
+  color: var(--text);
 }
 
-.storage-active-external.active {
-  border-color: var(--amber-bg);
-  background: var(--amber-bg);
-  color: var(--amber);
-}
-
-.storage-active-framer.active .filter-count {
-  border-color: var(--green-border);
-  background: var(--green-bg);
-  color: var(--green);
-}
-
-.storage-active-external.active .filter-count {
-  border-color: var(--amber-bg);
-  background: var(--amber-bg);
-  color: var(--amber);
+.filter-storage-chevron {
+  position: absolute;
+  right: 0;
+  pointer-events: none;
+  color: var(--muted);
 }
 
 /* ─── Grid area ──────────────────────────────────────────────────────────────── */
@@ -537,7 +585,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 12px 12px 12px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--framer-color-bg-secondary);
   background: var(--bg);
 }
 
@@ -560,8 +608,8 @@ body {
   gap: 10px;
   padding: 7px 8px;
   border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: var(--bg2);
+  border: 1.5px solid var(--framer-color-divider);
+  background: var(--framer-color-bg);
   cursor: default;
   transition: background .12s, border-color .12s;
 }
@@ -723,33 +771,91 @@ body {
   }
 }
 
+/* ─── List row — new badge + dots styles ─────────────────────────────────────── */
+.row-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+}
+
+/* Reuse card-type-badge but override for dark row context */
+.row-type-badge {
+  background: var(--bg3);
+  color: var(--text2);
+  border: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.row-usage {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+/* Dots wrap in list row — relative so menu drops below */
+.row-dots-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.row-dots-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+
+.row-dots-btn:hover {
+  background: var(--bg4);
+  color: var(--text);
+}
+
+/* Menu drops below the dots button (list layout) */
+.row-dots-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: auto;
+  z-index: 100;
+}
+
 /* ─── Asset card ─────────────────────────────────────────────────────────────── */
 .asset-card {
-  background: var(--bg2);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  overflow: visible;
   display: flex;
   flex-direction: column;
-  transition: border-color .15s, transform .15s, box-shadow .15s;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
-.asset-card.hovered {
-  border-color: var(--border2);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
+/* Full-bleed image — all overlays live inside here */
 .card-img-wrap {
   position: relative;
-  aspect-ratio: 4/3;
-  overflow: hidden;
-  background: var(--bg3);
+  aspect-ratio: 16/16;
+  background: var(--framer-color-bg);
   cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
+/* Clip the image itself so it stays rounded */
 .card-img {
+  border-radius: 12px;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -758,151 +864,237 @@ body {
 }
 
 .asset-card.hovered .card-img {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
-/* ── Card badges ── */
-/* Shared base — all badges use these */
-.card-badge {
+/* ── Top-left: type + no-alt badges ── */
+.card-badges-tl {
   position: absolute;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  backdrop-filter: blur(6px);
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 2;
   pointer-events: none;
 }
 
-/* source: top-left */
-.card-badge.source-canvas {
-  top: 6px;
-  left: 6px;
-  background: rgba(22, 163, 74, .85);
+.card-type-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
   color: #fff;
+  background: rgba(0, 0, 0, .55);
+  border-radius: 6px;
+  padding: 3px 8px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.card-badge.source-cms {
-  top: 6px;
-  left: 6px;
-  background: rgba(99, 102, 241, .85);
+.card-noalt-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
   color: #fff;
+  background: var(--red);
+  border-radius: 6px;
+  padding: 3px 8px;
 }
 
-/* top-right */
-.badge-tr {
-  top: 6px;
-  right: 6px;
-}
-
-.badge-video {
-  background: rgba(124, 58, 237, .85);
-  color: #fff;
-}
-
-.badge-count {
-  background: rgba(0, 0, 0, .45);
-  color: #fff;
-}
-
-.badge-count.hot {
-  background: rgba(180, 83, 9, .85);
-  color: #fff;
-}
-
-/* bottom-right */
-.badge-br {
-  bottom: 6px;
-  right: 6px;
-}
-
-.badge-noalt {
-  background: rgba(220, 38, 38, .80);
-  color: #fff;
-}
-
-/* ── Card footer ── */
-.card-footer {
+/* ── Top-right: three dots ── */
+.card-dots-btn {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: none;
+  background: rgba(0, 0, 0, .40);
+  color: rgba(255, 255, 255, .85);
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 9px 9px;
-  background: var(--bg2);
-  border-top: 1px solid var(--border);
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background .15s;
 }
 
-.card-info {
-  flex: 1;
-  min-width: 0;
+.card-dots-btn:hover {
+  background: var(--framer-color-bg-secondary);
+  color: var(--text);
+}
+
+/* ── Bottom: frosted info panel ── */
+.card-info-panel {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 10px;
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: var(--framer-color-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, .10);
   cursor: pointer;
 }
 
-.card-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
+[data-framer-theme="light"] .card-info-panel {
+  /*background: rgba(255, 255, 255);*/
+  border: 1px solid rgba(0, 0, 0, .10);
+}
+
+.card-panel-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-panel-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+
+[data-framer-theme="light"] .card-panel-name {
+  color: #111;
+}
+
+.card-panel-usage {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, .65);
+}
+
+[data-framer-theme="light"] .card-panel-usage {
+  color: rgba(0, 0, 0, .50);
+}
+
+.card-panel-usage-loc {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.card-loc {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-/* ── Add / Set / Video button on card ── */
-.add-btn {
+/* ── Panel add button ── */
+.card-panel-btn {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  border: 1.5px solid var(--green-border);
-  background: var(--green-bg);
-  color: var(--green);
-  font-size: 17px;
-  font-weight: 700;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: none;
+  background: var(--framer-color-bg);
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all .12s;
-  font-family: inherit;
+  /*box-shadow: 0 2px 8px color-mix(in srgb, var(--framer-color-tint) 45%, transparent);*/
+  transition: background .12s, box-shadow .12s, transform .1s;
 }
 
-.add-btn:hover:not(:disabled) {
-  background: rgba(22, 163, 74, .18);
-  box-shadow: 0 0 0 3px var(--green-bg);
+[data-framer-theme="light"] .card-panel-btn {
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, .10);
 }
 
-.add-btn.set-btn {
-  border-color: var(--blue-border);
-  background: var(--blue-bg);
-  color: var(--blue);
+.card-panel-btn:hover:not(:disabled) {
+  background: var(--framer-color-tint);
+  color: var(--framer-color-text-reversed)
+    /*box-shadow: 0 4px 14px color-mix(in srgb, var(--framer-color-tint) 55%, transparent);*/
 }
 
-.add-btn.set-btn:hover:not(:disabled) {
-  background: rgba(2, 132, 199, .18);
-  box-shadow: 0 0 0 3px var(--blue-bg);
+.card-panel-btn:active {
+  transform: scale(.93);
 }
 
-.add-btn.video-btn {
-  border-color: var(--purple-border);
-  background: var(--purple-bg);
-  color: var(--purple);
-  font-size: 14px;
+.card-panel-btn.success {
+  background: var(--green);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, .40);
 }
 
-.add-btn.success {
-  background: rgba(22, 163, 74, .2);
-}
-
-.add-btn.loading,
-.add-btn:disabled {
-  opacity: .45;
+.card-panel-btn.loading,
+.card-panel-btn:disabled {
+  opacity: .5;
   cursor: not-allowed;
+}
+
+/* ── List layout action buttons ── */
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.card-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .12s, transform .1s;
+}
+
+.card-btn:active {
+  transform: scale(.94);
+}
+
+.card-btn-secondary {
+  background: var(--bg3);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.card-btn-secondary:hover {
+  background: var(--bg4);
+  color: var(--text);
+  border-color: var(--border2);
+}
+
+.card-btn-primary {
+  background: var(--framer-color-tint);
+  color: #fff;
+  border: none;
+  /*box-shadow: 0 2px 6px color-mix(in srgb, var(--framer-color-tint) 40%, transparent);*/
+}
+
+.card-btn-primary:hover:not(:disabled) {
+  background: var(--framer-color-tint-dark);
+}
+
+.card-btn-primary.success {
+  background: var(--green);
+}
+
+.card-btn-primary.loading,
+.card-btn-primary:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.btn-spinner-white {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .3);
+  border-top-color: #fff;
+  animation: spin .6s linear infinite;
+  display: block;
 }
 
 .btn-spinner {
@@ -1539,6 +1731,7 @@ body {
   border-color: var(--border2);
   color: var(--text);
 }
+
 /* ─── Remix modal ─────────────────────────────────────────────────────────── */
 .remix-backdrop {
   position: fixed;
@@ -1640,4 +1833,142 @@ body {
   background: var(--bg4);
   color: var(--text);
   border-color: var(--border2);
+}
+
+/* ─── File size labels ───────────────────────────────────────────────────────── */
+
+/* Grid card — shown below location label */
+.card-size {
+  font-size: 10px;
+  color: var(--dim);
+  margin-top: 3px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+/* List row — inline with other badges */
+.row-size {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+/* Detail panel — meta-value size state */
+.meta-size {
+  font-size: 13px;
+}
+
+.meta-size-loading {
+  color: var(--dim);
+  font-size: 14px;
+}
+
+/* ─── Card dots dropdown menu ────────────────────────────────────────────────── */
+.card-dots-wrap {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+}
+
+/* asset-card needs position:relative so dots-wrap anchors to it */
+.asset-card {
+  position: relative;
+}
+
+.card-dots-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: none;
+  background: rgba(0, 0, 0, .40);
+  color: rgba(255, 255, 255, .85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background .15s;
+}
+
+.card-dots-btn:hover {
+  background: var(--framer-color-bg-secondary);
+  color: var(--framer-color-text-reversed);
+}
+
+[data-framer-theme="light"] .card-dots-btn:hover {
+  color: #000;
+}
+
+.card-dots-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 172px;
+  background: var(--framer-color-bg);
+  border: 1px solid var(--framer-color-divider);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .20);
+  animation: menuIn .12s ease;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: scale(.95) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.card-dots-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--framer-color-text);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background .1s;
+}
+
+.card-dots-item:hover {
+  background: var(--framer-color-bg-tertiary);
+}
+
+.card-dots-item svg {
+  flex-shrink: 0;
+  color: var(--framer-color-text-secondary);
+}
+
+.card-dots-item.item-danger {
+  color: var(--red);
+}
+
+.card-dots-item.item-danger svg {
+  color: var(--red);
+}
+
+.card-dots-divider {
+  height: 1px;
+  background: var(--framer-color-divider);
+  margin: 3px 6px;
 }

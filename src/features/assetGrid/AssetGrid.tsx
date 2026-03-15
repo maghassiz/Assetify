@@ -7,23 +7,23 @@
 // ║  → Empty state: ../../components/EmptyState.tsx                          ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 import type { AssetEntry, SourceFilter } from "../../types"
-import { AssetCard }  from "../../components/AssetCard"
+import { AssetCard } from "../../components/AssetCard"
 import { EmptyState } from "../../components/EmptyState"
 
 export type LayoutMode = "grid" | "list"
 
 interface AssetGridProps {
-  assets:       AssetEntry[]
-  loading:      boolean
-  loadError:    string | null
+  assets: AssetEntry[]
+  loading: boolean
+  loadError: string | null
   sourceFilter: SourceFilter
   hasSelection: boolean
-  addingKey:    string | null
-  addedKey:     string | null
-  layout:       LayoutMode
-  onOpen:       (a: AssetEntry) => void
-  onAdd:        (a: AssetEntry, e: React.MouseEvent) => void
-  onRetry:      () => void
+  addingKey: string | null
+  addedKey: string | null
+  layout: LayoutMode
+  onOpen: (a: AssetEntry) => void
+  onAdd: (a: AssetEntry, e: React.MouseEvent) => void
+  onRetry: () => void
 }
 
 export function AssetGrid({

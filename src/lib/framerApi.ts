@@ -8,7 +8,7 @@ import {
   buildLocationLabel,
   normalizeUrl,
 } from "./assetUtils"
-import { resolvePageName } from "./pageResolver"
+import { resolvePageName, clearPageCache } from "./pageResolver"
 
 // ─── Load: canvas images ──────────────────────────────────────────────────────
 async function loadCanvasImages(): Promise<AssetEntry[]> {
@@ -19,7 +19,7 @@ async function loadCanvasImages(): Promise<AssetEntry[]> {
   >()
 
   for (const node of nodes) {
-    const raw  = (node as Record<string, unknown>)["backgroundImage"]
+    const raw = (node as Record<string, unknown>)["backgroundImage"]
     const data = readImageData(raw)
     if (!data?.url) continue
 
@@ -44,11 +44,11 @@ async function loadCanvasImages(): Promise<AssetEntry[]> {
       }
     } else {
       grouped.set(canonicalKey, {
-        nodeIds:   [node.id],
+        nodeIds: [node.id],
         nodeNames: nodeName ? [nodeName] : [],
-        url:       data.url,
-        name:      nodeName || data.name || "Untitled",
-        altText:   data.altText,
+        url: data.url,
+        name: nodeName || data.name || "Untitled",
+        altText: data.altText,
       })
     }
   }
@@ -59,17 +59,17 @@ async function loadCanvasImages(): Promise<AssetEntry[]> {
       ? await resolvePageName(info.nodeIds[0])
       : ""
     entries.push({
-      key:           `canvas:${imageId}`,
-      name:          info.name,
-      url:           info.url,
-      altText:       info.altText,
-      source:        "canvas",
-      assetType:     classifyAssetType(info.url),
+      key: `canvas:${imageId}`,
+      name: info.name,
+      url: info.url,
+      altText: info.altText,
+      source: "canvas",
+      assetType: classifyAssetType(info.url),
       storageSource: detectStorageSource(info.url),
-      nodeIds:       info.nodeIds,
+      nodeIds: info.nodeIds,
       locationLabel: buildLocationLabel({ pageName, nodeCount: info.nodeIds.length }),
       pageName,
-      navigateId:    info.nodeIds[0],
+      navigateId: info.nodeIds[0],
     })
   }
   return entries
@@ -82,7 +82,7 @@ async function loadCanvasImages(): Promise<AssetEntry[]> {
 //   Pattern B (custom CodeComponent with ControlType.File): direct URL string
 async function loadCanvasVideos(existingUrls: Set<string>): Promise<AssetEntry[]> {
   const compNodes = await framer.getNodesWithAttributeSet("controls")
-  const grouped   = new Map<string, { nodeIds: string[]; name: string }>()
+  const grouped = new Map<string, { nodeIds: string[]; name: string }>()
 
   for (const node of compNodes) {
     const controls = (node as Record<string, unknown>)["controls"] as
@@ -90,7 +90,7 @@ async function loadCanvasVideos(existingUrls: Set<string>): Promise<AssetEntry[]
       | undefined
     if (!controls || typeof controls !== "object") continue
 
-    let videoUrl  = ""
+    let videoUrl = ""
     let videoName = ""
 
     // Pattern A
@@ -100,14 +100,14 @@ async function loadCanvasVideos(existingUrls: Set<string>): Promise<AssetEntry[]
       if (f && typeof f["url"] === "string") {
         const mime = (f["mimeType"] as string | undefined) ?? ""
         if (mime.startsWith("video/") || isVideoUrl(f["url"])) {
-          videoUrl  = f["url"]
+          videoUrl = f["url"]
           videoName = (f["name"] as string | undefined) ?? "Video"
         }
       }
     } else if (srcType === "Link") {
       const link = controls["srcLink"] as string | undefined
       if (link && isVideoUrl(link)) {
-        videoUrl  = link
+        videoUrl = link
         videoName = link.split("/").pop()?.split("?")[0] ?? "Video"
       }
     }
@@ -116,17 +116,17 @@ async function loadCanvasVideos(existingUrls: Set<string>): Promise<AssetEntry[]
     if (!videoUrl) {
       for (const val of Object.values(controls)) {
         if (typeof val === "string" && isVideoUrl(val)) {
-          videoUrl  = val
+          videoUrl = val
           videoName = val.split("/").pop()?.split("?")[0] ?? "Video"
           break
         }
         if (val && typeof val === "object") {
-          const fa   = val as Record<string, unknown>
+          const fa = val as Record<string, unknown>
           const fUrl = fa["url"] as string | undefined
           if (!fUrl) continue
           const mime = (fa["mimeType"] as string | undefined) ?? ""
           if (mime.startsWith("video/") || isVideoUrl(fUrl)) {
-            videoUrl  = fUrl
+            videoUrl = fUrl
             videoName = (fa["name"] as string | undefined) ?? "Video"
             break
           }
@@ -151,17 +151,17 @@ async function loadCanvasVideos(existingUrls: Set<string>): Promise<AssetEntry[]
       ? await resolvePageName(info.nodeIds[0])
       : ""
     entries.push({
-      key:           `video:${url}`,
-      name:          info.name,
+      key: `video:${url}`,
+      name: info.name,
       url,
-      altText:       "",
-      source:        "canvas",
-      assetType:     "video",
+      altText: "",
+      source: "canvas",
+      assetType: "video",
       storageSource: detectStorageSource(url),
-      nodeIds:       info.nodeIds,
+      nodeIds: info.nodeIds,
       locationLabel: buildLocationLabel({ pageName, nodeCount: info.nodeIds.length }),
       pageName,
-      navigateId:    info.nodeIds[0],
+      navigateId: info.nodeIds[0],
     })
   }
   return entries
@@ -173,31 +173,31 @@ async function loadCmsImages(): Promise<AssetEntry[]> {
   const collections = await framer.getCollections()
 
   for (const col of collections) {
-    const fields    = await col.getFields()
+    const fields = await col.getFields()
     const imgFields = fields.filter((f) => f.type === "image")
     if (!imgFields.length) continue
 
     const items = await col.getItems()
     for (const item of items) {
       for (const field of imgFields) {
-        const raw  = (item.fieldData as Record<string, unknown>)[field.id]
+        const raw = (item.fieldData as Record<string, unknown>)[field.id]
         const data = readImageData(raw)
         if (!data?.url) continue
 
         const slug = (item as Record<string, unknown>)["slug"] as string | undefined
         entries.push({
-          key:             `cms:${col.id}:${item.id}:${field.id}`,
-          name:            field.name,
-          url:             data.url,
-          altText:         data.altText,
-          source:          "cms",
-          assetType:       "image",
-          storageSource:   detectStorageSource(data.url),
-          nodeIds:         [],
-          locationLabel:   buildLocationLabel({ colName: col.name, slug, itemId: item.id }),
-          pageName:        "",
+          key: `cms:${col.id}:${item.id}:${field.id}`,
+          name: field.name,
+          url: data.url,
+          altText: data.altText,
+          source: "cms",
+          assetType: "image",
+          storageSource: detectStorageSource(data.url),
+          nodeIds: [],
+          locationLabel: buildLocationLabel({ colName: col.name, slug, itemId: item.id }),
+          pageName: "",
           cmsCollectionId: col.id,
-          cmsItemId:       item.id,
+          cmsItemId: item.id,
         })
       }
     }
@@ -209,13 +209,15 @@ async function loadCmsImages(): Promise<AssetEntry[]> {
 // Each source is wrapped in its own try/catch so a failure in one doesn't
 // prevent the others from loading.
 export async function loadAssets(): Promise<AssetEntry[]> {
+  // Clear cached page names so moves/renames are reflected on refresh
+  clearPageCache()
   const results = await Promise.allSettled([
     loadCanvasImages().catch((e) => { console.warn("[AM] canvas images:", e); return [] }),
-    loadCmsImages().catch((e)    => { console.warn("[AM] cms:", e);           return [] }),
+    loadCmsImages().catch((e) => { console.warn("[AM] cms:", e); return [] }),
   ])
 
   const canvasImages = results[0].status === "fulfilled" ? results[0].value : []
-  const cmsImages    = results[1].status === "fulfilled" ? results[1].value : []
+  const cmsImages = results[1].status === "fulfilled" ? results[1].value : []
 
   const existingUrls = new Set(canvasImages.map((e) => e.url))
   const videos = await loadCanvasVideos(existingUrls).catch((e) => {
@@ -247,17 +249,17 @@ export async function saveCanvasAltText(nodeIds: string[], newAlt: string): Prom
 
 // ─── Save: CMS alt text ───────────────────────────────────────────────────────
 export async function saveCmsAltText(key: string, newAlt: string): Promise<void> {
-  const parts   = key.split(":")
-  const colId   = parts[1]
-  const itemId  = parts[2]
+  const parts = key.split(":")
+  const colId = parts[1]
+  const itemId = parts[2]
   const fieldId = parts.slice(3).join(":")
 
   const cols = await framer.getCollections()
-  const col  = cols.find((c) => c.id === colId)
+  const col = cols.find((c) => c.id === colId)
   if (!col) throw new Error("Collection not found")
 
   const items = await col.getItems()
-  const item  = items.find((i) => i.id === itemId)
+  const item = items.find((i) => i.id === itemId)
   if (!item) throw new Error("Item not found")
 
   const raw = (item.fieldData as Record<string, unknown>)[fieldId]
@@ -266,13 +268,13 @@ export async function saveCmsAltText(key: string, newAlt: string): Promise<void>
   const updated =
     typeof raw === "object" && raw !== null && "value" in raw
       ? {
-          ...(raw as object),
-          value: { ...((raw as { value: object }).value), altText: newAlt },
-        }
+        ...(raw as object),
+        value: { ...((raw as { value: object }).value), altText: newAlt },
+      }
       : { ...(raw as object), altText: newAlt }
 
   const newFD = { ...(item.fieldData as Record<string, unknown>), [fieldId]: updated }
-  const slug  = (item as Record<string, unknown>)["slug"] as string | undefined
+  const slug = (item as Record<string, unknown>)["slug"] as string | undefined
 
   await (
     col as unknown as {
@@ -288,15 +290,15 @@ export async function smartAdd(asset: AssetEntry): Promise<"set" | "add"> {
   const sel = await framer.getSelection()
   if (sel.length > 0 && framer.isAllowedTo("setImage")) {
     await framer.setImage({
-      image:   asset.url,
+      image: asset.url,
       altText: asset.altText || undefined,
     } as Parameters<typeof framer.setImage>[0])
     return "set"
   }
   if (framer.isAllowedTo("addImage")) {
     await framer.addImage({
-      image:   asset.url,
-      name:    asset.name,
+      image: asset.url,
+      name: asset.name,
       altText: asset.altText || undefined,
     } as Parameters<typeof framer.addImage>[0])
   }
@@ -305,8 +307,18 @@ export async function smartAdd(asset: AssetEntry): Promise<"set" | "add"> {
 
 // ─── Navigate ─────────────────────────────────────────────────────────────────
 export async function navigateToNode(nodeId: string): Promise<void> {
-  await framer.setSelection([nodeId])
-  await framer.zoomIntoView([nodeId])
+  console.log("[Assetify] navigateToNode called with:", nodeId)
+  console.log("[Assetify] framer methods:", Object.keys(framer as unknown as object).filter(k => k.toLowerCase().includes("nav") || k.toLowerCase().includes("zoom") || k.toLowerCase().includes("select") || k.toLowerCase().includes("page")))
+
+  try {
+    await framer.setSelection([nodeId])
+    console.log("[Assetify] setSelection done")
+  } catch (e) { console.error("[Assetify] setSelection failed:", e) }
+
+  try {
+    await framer.zoomIntoView([nodeId])
+    console.log("[Assetify] zoomIntoView done")
+  } catch (e) { console.error("[Assetify] zoomIntoView failed:", e) }
 }
 
 export async function navigateToCmsItem(itemId: string): Promise<void> {

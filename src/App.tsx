@@ -214,19 +214,19 @@ export function App() {
               <span className="remix-emoji">👋</span>
               <div>
                 <div className="remix-title">First time here? Welcome!</div>
-                <div className="remix-sub">We made a quick guide so you don't have to figure things out alone. Copy it and you'll be up and running in minutes. Totally free!.</div>
+                <div className="remix-sub">We made a quick guide so you don't have to figure things out alone — download it and you'll be up and running in minutes. Totally free, no strings attached. 🙌</div>
               </div>
             </div>
             <div className="remix-actions">
               <button className="remix-close" onClick={() => setShowRemix(false)}>✕</button>
               <a
                 className="remix-btn"
-                href="https://framer.link/G1jH0U6"
+                href="https://YOUR_DOCS_LINK_HERE"
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setShowRemix(false)}
               >
-                🔗 Copy the Documentation File — It's Free
+                🔗 Copy the Framer File — It's Free
               </a>
             </div>
           </div>

@@ -12,17 +12,17 @@ import { resolvePageNames } from "../../lib/pageResolver"
 import { navigateToNode, navigateToCmsItem } from "../../lib/framerApi"
 
 export interface NavigatorState {
-  navIndex:         number
-  nodePageNames:    string[]
-  initNav:          (asset: AssetEntry) => void
-  stepPrev:         () => Promise<void>
-  stepNext:         () => Promise<void>
-  navToIndex:       (i: number) => Promise<void>
+  navIndex: number
+  nodePageNames: string[]
+  initNav: (asset: AssetEntry) => void
+  stepPrev: () => Promise<void>
+  stepNext: () => Promise<void>
+  navToIndex: (i: number) => Promise<void>
   navToCurrentNode: () => Promise<void>
 }
 
 export function useNavigator(selected: AssetEntry | null): NavigatorState {
-  const [navIndex,      setNavIndex]      = useState(0)
+  const [navIndex, setNavIndex] = useState(0)
   const [nodePageNames, setNodePageNames] = useState<string[]>([])
 
   const initNav = useCallback((asset: AssetEntry) => {
@@ -46,11 +46,13 @@ export function useNavigator(selected: AssetEntry | null): NavigatorState {
   }, [selected])
 
   const navToCurrentNode = useCallback(async () => {
+    console.log("[Assetify] navToCurrentNode called, selected:", selected?.key, "navIndex:", navIndex)
     if (!selected) return
     if (selected.source === "cms" && selected.cmsItemId) {
       await navigateToCmsItem(selected.cmsItemId); return
     }
     const nodeId = selected.nodeIds[navIndex] ?? selected.nodeIds[0]
+    console.log("[Assetify] nodeId to navigate:", nodeId)
     if (nodeId) await navigateToNode(nodeId)
   }, [selected, navIndex])
 

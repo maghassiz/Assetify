@@ -10,6 +10,24 @@ function displayName(asset: AssetEntry): string {
   return filename.replace(/[-_]/g, " ").replace(/\.\w+$/, "") || "Untitled"
 }
 
+// Fetch blob and trigger real download (works cross-origin)
+async function downloadAsset(url: string, name: string) {
+  try {
+    const res = await fetch(url)
+    const blob = await res.blob()
+    const ext = url.split("?")[0].split(".").pop() ?? "jpg"
+    const href = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = href
+    a.download = `${name}.${ext}`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(href), 5000)
+  } catch {
+    // fallback: open in new tab
+    window.open(url, "_blank")
+  }
+}
+
 const IconPlus = () => (
   <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
     <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z" />
@@ -35,11 +53,7 @@ const IconDownload = () => (
     <path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,134.34V40a8,8,0,0,0-16,0v94.34L93.66,106.34a8,8,0,0,0-11.32,11.32Z" />
   </svg>
 )
-const IconSwap = () => (
-  <svg width="15" height="15" viewBox="0 0 256 256" fill="currentColor">
-    <path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.19-23.43C94,50,65.57,67.74,51.14,95.85a8,8,0,1,1-14.28-7.2C54.49,55.18,89.44,34,125.87,34A95.43,95.43,0,0,1,193.4,61.14L208,75.31V48a8,8,0,0,1,16,0ZM204.86,167.86C190.43,195.92,162,214,130.13,214A95.52,95.52,0,0,1,62.6,186.78L48,172.57V200a8,8,0,0,1-16,0V152a8,8,0,0,1,8-8H88a8,8,0,0,1,0,16H59.31l14.63,14.49a79.56,79.56,0,0,0,56.19,23.43C162,206,190.43,188.16,204.86,160.05a8,8,0,1,1,14.28,7.2Z" />
-  </svg>
-)
+
 
 interface AssetCardProps {
   asset: AssetEntry
@@ -132,24 +146,13 @@ export function AssetCard({
                 className="card-dots-item"
                 onClick={() => {
                   setMenuOpen(false)
-                  const a = document.createElement("a")
-                  a.href = asset.url
-                  a.download = displayName(asset)
-                  a.target = "_blank"
-                  a.click()
+                  downloadAsset(asset.url, displayName(asset))
                 }}
               >
                 <IconDownload />
                 Download asset
               </button>
-              <div className="card-dots-divider" />
-              <button
-                className="card-dots-item"
-                onClick={() => { setMenuOpen(false); onOpen() }}
-              >
-                <IconSwap />
-                Change asset
-              </button>
+
             </div>
           )}
         </div>
@@ -248,24 +251,13 @@ export function AssetCard({
               className="card-dots-item"
               onClick={() => {
                 setMenuOpen(false)
-                const a = document.createElement("a")
-                a.href = asset.url
-                a.download = displayName(asset)
-                a.target = "_blank"
-                a.click()
+                downloadAsset(asset.url, displayName(asset))
               }}
             >
               <IconDownload />
               Download asset
             </button>
-            <div className="card-dots-divider" />
-            <button
-              className="card-dots-item"
-              onClick={() => { setMenuOpen(false); onOpen() }}
-            >
-              <IconSwap />
-              Change asset
-            </button>
+
           </div>,
           document.body
         )}

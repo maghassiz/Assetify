@@ -15,6 +15,9 @@ import type { LayoutMode } from "./features/assetGrid/AssetGrid"
 import { saveAltText } from "./features/altText/saveAltText"
 import { useNavigator } from "./features/navigator/useNavigator"
 import { DetailPanel } from "./components/DetailPanel"
+import { BandwidthView } from "./features/bandwidth/BandwidthView"
+import { useBandwidth } from "./hooks/useBandwidth"
+import { AboutView } from "./features/about/AboutView"
 import { initAnalytics, trackEvent, endSession, EVENTS } from "./lib/analytics"
 
 framer.showUI({ title: PLUGIN_NAME, ...PLUGIN_UI })
@@ -22,6 +25,7 @@ framer.showUI({ title: PLUGIN_NAME, ...PLUGIN_UI })
 export function App() {
   // ── Data ────────────────────────────────────────────────────────────────────
   const { assets, loading, loadError, refresh } = useAssets()
+  const bandwidth = useBandwidth()
   const [hasSelection, setHasSelection] = useState(false)
   useEffect(() => framer.subscribeToSelection((s) => setHasSelection(s.length > 0)), [])
 
@@ -67,6 +71,10 @@ export function App() {
 
   // Remix modal — shown once per session
   const [showRemix, setShowRemix] = useState(true)
+
+  // Bottom nav tab
+  type Tab = "assets" | "bandwidth" | "about"
+  const [activeTab, setActiveTab] = useState<Tab>("assets")
 
   // ── Add to canvas ───────────────────────────────────────────────────────────
   const [addingKey, setAddingKey] = useState<string | null>(null)
@@ -152,59 +160,64 @@ export function App() {
   return (
     <div className="plugin-root">
 
-      {/* ── Search row: input + refresh + layout toggle ───────────────────── */}
-      {FEATURES.search && (
-        <Search
-          value={search}
-          layout={layout}
-          onChange={handleSearch}
-          onClear={() => setSearch("")}
-          onRefresh={() => { refresh(); trackEvent(EVENTS.REFRESH) }}
-          onLayoutChange={setLayout}
-        />
-      )}
+      {/* ── Assets tab ────────────────────────────────────────────────────── */}
+      {activeTab === "assets" && (<>
 
-      {/* ── Filter rows: Resource + Storage ──────────────────────────────── */}
-      {FEATURES.sourceFilter && FEATURES.storageFilter && (
-        <Filters
+        {/* ── Search row: input + refresh + layout toggle ───────────────────── */}
+        {FEATURES.search && (
+          <Search
+            value={search}
+            layout={layout}
+            onChange={handleSearch}
+            onClear={() => setSearch("")}
+            onRefresh={() => { refresh(); trackEvent(EVENTS.REFRESH) }}
+            onLayoutChange={setLayout}
+          />
+        )}
+
+        {/* ── Filter rows: Resource + Storage ──────────────────────────────── */}
+        {FEATURES.sourceFilter && FEATURES.storageFilter && (
+          <Filters
+            sourceFilter={sourceFilter}
+            storageFilter={storageFilter}
+            onSourceChange={(v) => {
+              setSourceFilter(v)
+              refresh()
+              trackEvent(EVENTS.FILTER_SOURCE, { value: v })
+            }}
+            onStorageChange={(v) => {
+              setStorageFilter(v)
+              refresh()
+              trackEvent(EVENTS.FILTER_STORAGE, { value: v })
+            }}
+            countFor={countFor}
+            storageCountFor={storageCountFor}
+          />
+        )}
+
+        {/* ── Asset grid / list ─────────────────────────────────────────────── */}
+        <AssetGrid
+          assets={filtered}
+          loading={loading}
+          loadError={loadError}
           sourceFilter={sourceFilter}
-          storageFilter={storageFilter}
-          onSourceChange={(v) => {
-            setSourceFilter(v)
-            refresh()
-            trackEvent(EVENTS.FILTER_SOURCE, { value: v })
-          }}
-          onStorageChange={(v) => {
-            setStorageFilter(v)
-            refresh()
-            trackEvent(EVENTS.FILTER_STORAGE, { value: v })
-          }}
-          countFor={countFor}
-          storageCountFor={storageCountFor}
+          hasSelection={hasSelection}
+          addingKey={addingKey}
+          addedKey={addedKey}
+          layout={layout}
+          onOpen={openDetail}
+          onAdd={(a, e) => { e.stopPropagation(); doAdd(a) }}
+          onRetry={refresh}
         />
-      )}
 
-      {/* ── Asset grid / list ─────────────────────────────────────────────── */}
-      <AssetGrid
-        assets={filtered}
-        loading={loading}
-        loadError={loadError}
-        sourceFilter={sourceFilter}
-        hasSelection={hasSelection}
-        addingKey={addingKey}
-        addedKey={addedKey}
-        layout={layout}
-        onOpen={openDetail}
-        onAdd={(a, e) => { e.stopPropagation(); doAdd(a) }}
-        onRetry={refresh}
-      />
+        {/* ── Add toast ─────────────────────────────────────────────────────── */}
+        {addMode && (
+          <div className={`add-toast ${addMode}`}>
+            {addMode === "set" ? "✓ Set on selected frame" : "✓ Added to canvas"}
+          </div>
+        )}
 
-      {/* ── Add toast ─────────────────────────────────────────────────────── */}
-      {addMode && (
-        <div className={`add-toast ${addMode}`}>
-          {addMode === "set" ? "✓ Set on selected frame" : "✓ Added to canvas"}
-        </div>
-      )}
+      </>) /* end assets tab */}
 
       {/* ── Remix modal — shown once on open ─────────────────────────────── */}
       {showRemix && (
@@ -234,16 +247,54 @@ export function App() {
       )}
 
       {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <footer className="footer-bar">
-        <a className="footer-link" href="https://buymeacoffee.com/heyaghassi" target="_blank" rel="noreferrer">
-          <span className="footer-icon">☕</span>
-          <span className="footer-label">Buy me a coffee</span>
-        </a>
-        <a className="footer-link footer-link-right" href="mailto:maghassiz@gmail.com?subject=Feedback%20%2F%20Request%20Feature%20Assetify%20Plugin" target="_blank" rel="noreferrer">
-          <span className="footer-icon">💬</span>
-          <span className="footer-label">Feature request/feedback</span>
-        </a>
-      </footer>
+      {/* ── Bandwidth tab ─────────────────────────────────────────────────── */}
+      {activeTab === "bandwidth" && (
+        <div className="tab-content">
+          <BandwidthView
+            {...bandwidth}
+            assetCount={assets.length}
+            startScan={() => bandwidth.startScan(assets)}
+          />
+        </div>
+      )}
+
+      {/* ── About tab ─────────────────────────────────────────────────────── */}
+      {activeTab === "about" && (
+        <div className="tab-content">
+          <AboutView />
+        </div>
+      )}
+
+      {/* ── Bottom nav ────────────────────────────────────────────────────── */}
+      <nav className="bottom-nav">
+        <button
+          className={`bottom-nav-btn${activeTab === "assets" ? " active" : ""}`}
+          onClick={() => setActiveTab("assets")}
+        >
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM40,56H216V96H40ZM40,200V112H216v88Z" />
+          </svg>
+          <span>Assets</span>
+        </button>
+        <button
+          className={`bottom-nav-btn${activeTab === "bandwidth" ? " active" : ""}`}
+          onClick={() => setActiveTab("bandwidth")}
+        >
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1,0-16H224A8,8,0,0,1,232,208ZM48,168a8,8,0,0,0,8-8V128a8,8,0,0,0-16,0v32A8,8,0,0,0,48,168Zm40,0a8,8,0,0,0,8-8V80a8,8,0,0,0-16,0v80A8,8,0,0,0,88,168Zm40,0a8,8,0,0,0,8-8V104a8,8,0,0,0-16,0v56A8,8,0,0,0,128,168Zm40,0a8,8,0,0,0,8-8V48a8,8,0,0,0-16,0v112A8,8,0,0,0,168,168Zm40,0a8,8,0,0,0,8-8V88a8,8,0,0,0-16,0v72A8,8,0,0,0,208,168Z" />
+          </svg>
+          <span>Bandwidth</span>
+        </button>
+        <button
+          className={`bottom-nav-btn${activeTab === "about" ? " active" : ""}`}
+          onClick={() => setActiveTab("about")}
+        >
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z" />
+          </svg>
+          <span>About</span>
+        </button>
+      </nav>
 
       {/* ── Detail panel ──────────────────────────────────────────────────── */}
       {selected && (

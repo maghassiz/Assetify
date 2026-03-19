@@ -312,9 +312,9 @@ export function DetailPanel({
                       placeholder="Describe this image for accessibility..."
                     />
                     <button
-                      className="dp-save-alt"
+                      className={`dp-save-alt${editingAlt.trim() ? " dp-save-alt-active" : ""}`}
                       onClick={onSaveAlt}
-                      disabled={saving}
+                      disabled={saving || !editingAlt.trim()}
                     >
                       {saving ? "Saving…" : "Save Alt Text"}
                     </button>

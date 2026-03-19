@@ -224,22 +224,21 @@ export function App() {
         <div className="remix-backdrop" onClick={() => setShowRemix(false)}>
           <div className="remix-modal" onClick={(e) => e.stopPropagation()}>
             <div className="remix-header">
-              <span className="remix-emoji">👋</span>
               <div>
                 <div className="remix-title">First time here? Welcome!</div>
-                <div className="remix-sub">We made a quick guide so you don't have to figure things out alone — download it and you'll be up and running in minutes. Totally free, no strings attached. 🙌</div>
+                <div className="remix-sub">We made a quick guide so you don't have to figure things out alone — download it and you'll be up and running in minutes. Totally free, no strings attached.</div>
               </div>
             </div>
             <div className="remix-actions">
               <button className="remix-close" onClick={() => setShowRemix(false)}>✕</button>
               <a
                 className="remix-btn"
-                href="https://YOUR_DOCS_LINK_HERE"
+                href="https://framer.link/G1jH0U6"
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setShowRemix(false)}
               >
-                🔗 Copy the Framer File — It's Free
+                Copy the Framer File — It's Free
               </a>
             </div>
           </div>
@@ -253,7 +252,14 @@ export function App() {
           <BandwidthView
             {...bandwidth}
             assetCount={assets.length}
-            startScan={() => bandwidth.startScan(assets)}
+            startScan={() => {
+              bandwidth.startScan(assets)
+              trackEvent(EVENTS.BANDWIDTH_SCAN_START, { asset_count: assets.length })
+            }}
+            onOpenAsset={(a) => {
+              openDetail(a)
+              trackEvent(EVENTS.BANDWIDTH_ASSET_OPENED, { asset_type: a.assetType, source: a.source })
+            }}
           />
         </div>
       )}
@@ -269,7 +275,7 @@ export function App() {
       <nav className="bottom-nav">
         <button
           className={`bottom-nav-btn${activeTab === "assets" ? " active" : ""}`}
-          onClick={() => setActiveTab("assets")}
+          onClick={() => { setActiveTab("assets"); trackEvent(EVENTS.ASSETS_TAB_OPENED) }}
         >
           <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
             <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM40,56H216V96H40ZM40,200V112H216v88Z" />
@@ -278,7 +284,7 @@ export function App() {
         </button>
         <button
           className={`bottom-nav-btn${activeTab === "bandwidth" ? " active" : ""}`}
-          onClick={() => setActiveTab("bandwidth")}
+          onClick={() => { setActiveTab("bandwidth"); trackEvent(EVENTS.BANDWIDTH_TAB_OPENED) }}
         >
           <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
             <path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1,0-16H224A8,8,0,0,1,232,208ZM48,168a8,8,0,0,0,8-8V128a8,8,0,0,0-16,0v32A8,8,0,0,0,48,168Zm40,0a8,8,0,0,0,8-8V80a8,8,0,0,0-16,0v80A8,8,0,0,0,88,168Zm40,0a8,8,0,0,0,8-8V104a8,8,0,0,0-16,0v56A8,8,0,0,0,128,168Zm40,0a8,8,0,0,0,8-8V48a8,8,0,0,0-16,0v112A8,8,0,0,0,168,168Zm40,0a8,8,0,0,0,8-8V88a8,8,0,0,0-16,0v72A8,8,0,0,0,208,168Z" />
@@ -287,7 +293,7 @@ export function App() {
         </button>
         <button
           className={`bottom-nav-btn${activeTab === "about" ? " active" : ""}`}
-          onClick={() => setActiveTab("about")}
+          onClick={() => { setActiveTab("about"); trackEvent(EVENTS.ABOUT_TAB_OPENED) }}
         >
           <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
             <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z" />

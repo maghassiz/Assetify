@@ -7,14 +7,14 @@
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 // ─── Identity ─────────────────────────────────────────────────────────────────
-export const PLUGIN_NAME    = "Assetify"
-export const PLUGIN_VERSION = "2.0.0"
-export const PLUGIN_LABEL   = "Advanced Asset Manager"   // shown below the title
+export const PLUGIN_NAME = "Assetify"
+export const PLUGIN_VERSION = "2.1.0"
+export const PLUGIN_LABEL = "Advanced Asset Manager"   // shown below the title
 
 // ─── Window ───────────────────────────────────────────────────────────────────
 export const PLUGIN_UI = {
-  width:     320,
-  height:    620,
+  width: 320,
+  height: 620,
   resizable: true,
 } as const
 
@@ -24,17 +24,17 @@ export const PLUGIN_UI = {
 // This lets you safely ship an unfinished feature without breaking anything.
 export const FEATURES = {
   /** Search bar across name, location, alt text, page */
-  search:          true,
+  search: true,
   /** ALL / CANVAS / CMS source filter tabs */
-  sourceFilter:    true,
+  sourceFilter: true,
   /** FRAMER / EXTERNAL storage filter tabs */
-  storageFilter:   true,
+  storageFilter: true,
   /** Sequential usage navigator in the detail panel */
-  usageNavigator:  true,
+  usageNavigator: true,
   /** Alt text editor and save in the detail panel */
-  altTextEditor:   true,
+  altTextEditor: true,
   /** Add image / set on frame canvas actions */
-  canvasActions:   true,
+  canvasActions: true,
 } as const
 
 // ─── Behaviour ────────────────────────────────────────────────────────────────
